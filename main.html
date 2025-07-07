@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Green API Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+    }
+    .left {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    input, textarea, button {
+      font-size: 14px;
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+    }
+    button {
+      cursor: pointer;
+    }
+    .right {
+      flex: 1;
+    }
+    #response {
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      padding: 10px;
+      height: 500px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="left">
+    <input id="idInstance" placeholder="idInstance">
+    <input id="apiTokenInstance" placeholder="ApiTokenInstance">
+
+    <button onclick="getSettings()">getSettings</button>
+    <button onclick="getStateInstance()">getStateInstance</button>
+
+    <input id="phoneNumber" placeholder="Номер телефона">
+    <textarea id="message" placeholder="Сообщение"></textarea>
+    <button onclick="sendMessage()">sendMessage</button>
+
+    <input id="filePhone" placeholder="Номер телефона">
+    <input id="fileUrl" placeholder="Отправить файл через URL">
+    <button onclick="sendFileByUrl()">sendFileByUrl</button>
+  </div>
+
+  <div class="right">
+    <h3>Ответ:</h3>
+    <div id="response" readonly></div>
+  </div>
+
+  <script>
+    const get = id => document.getElementById(id).value.trim();
+    const setResponse = data => {
+      document.getElementById("response").textContent = JSON.stringify(data, null, 2);
+    };
+
+    async function getSettings() {
+      const res = await fetch(`https://api.green-api.com/waInstance${get("idInstance")}/getSettings/${get("apiTokenInstance")}`);
+      setResponse(await res.json());
+    }
+
+    async function getStateInstance() {
+      const res = await fetch(`https://api.green-api.com/waInstance${get("idInstance")}/getStateInstance/${get("apiTokenInstance")}`);
+      setResponse(await res.json());
+    }
+
+    async function sendMessage() {
+      const res = await fetch(`https://api.green-api.com/waInstance${get("idInstance")}/sendMessage/${get("apiTokenInstance")}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chatId: get("phoneNumber") + "@c.us",
+          message: get("message")
+        })
+      });
+      setResponse(await res.json());
+    }
+
+    async function sendFileByUrl() {
+      const res = await fetch(`https://api.green-api.com/waInstance${get("idInstance")}/sendFileByUrl/${get("apiTokenInstance")}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chatId: get("filePhone") + "@c.us",
+          urlFile: get("fileUrl"),
+          fileName: "file"
+        })
+      });
+      setResponse(await res.json());
+    }
+  </script>
+</body>
+</html>
